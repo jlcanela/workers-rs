@@ -20,6 +20,7 @@ export const mf = new Miniflare({
     COUNTER: "Counter",
     PUT_RAW_TEST_OBJECT: "PutRawTestObject",
   },
+  sitePath: "./public",
   kvNamespaces: ["SOME_NAMESPACE", "FILE_SIZES"],
   serviceBindings: {
     async remote() {
