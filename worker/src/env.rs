@@ -81,8 +81,31 @@ impl Env {
         self.get_binding(binding)
     }
 
-    /// Returns the key name of an asset uploaded in the public folder only if a site was
-    /// configured in your wrangler.toml file.
+    /// Returns the name of an asset uploaded in the public folder only if a site was
+    /// configured in your `wrangler.toml` file.
+    ///
+    /// # Example
+    /// ```
+    /// #[event(fetch)]
+    /// pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Response> {
+    ///     let store = ctx.env.kv("__STATIC_CONTENT")?;
+    ///     let file_path = ctx.env.asset_key(asset_key)?;
+    ///
+    ///     if let Some(bytes) = store.get(&file_path).bytes().await? {
+    ///         let mut response = worker::Response::from_bytes(bytes)?;
+    ///         let content_type = match mime_guess::from_path(file_path).first() {
+    ///             Some(content_type) => content_type,
+    ///             None => return worker::Response::error("Unsupported file type", 415),
+    ///         };
+    ///         response
+    ///             .headers_mut()
+    ///             .set("Content-Type", content_type.essence_str())?;
+    ///         Ok(response)
+    ///     } else {
+    ///         worker::Response::error("Not found", 404)
+    ///     }
+    /// }
+    /// ```
     pub fn asset_key(&self, name: &str) -> Result<String> {
         let manifest_str = &STATIC_CONTENT_MANIFEST_STR.to_string();
         let manifest: std::collections::HashMap<&str, &str> =
